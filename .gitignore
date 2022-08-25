@@ -1,0 +1,4 @@
+datasets/MNIST/*
+.vscode
+.venv
+*__init__.py
