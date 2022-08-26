@@ -1,3 +1,5 @@
+import torch
+import torchvision.transforms as T
 import numpy as np
 
 class MnistFile():
@@ -38,8 +40,9 @@ class LabelFile(MnistFile):
     def __init__(self, filename):
         super().__init__(filename)
         assert self.magic == 2049
-        self.labels = np.asarray(self.bytes[8:])
-        assert len(self.labels) == self.items
+        self.labels = np.zeros((self.items, 10), dtype=np.float32)
+        for i, b in enumerate(self.bytes[8:]): # LABELS START AT 8!!!!
+            self.labels[i,b] = 1
 
 class ImageFile(MnistFile):
     """
@@ -59,20 +62,28 @@ class ImageFile(MnistFile):
         images = []
         for i in range(16, total_pixels, image_pixels):
             pxl_list = self.bytes[i:i+image_pixels]
-            images.append(pxl_list.reshape((n_rows, n_cols)))
+            images.append(pxl_list.reshape((1, n_rows, n_cols)))
         return np.asarray(images)
 
 
 class MnistDataset():
 
-    def __init__(self, datapath, labelpath):
+    def __init__(self, datapath, labelpath, transform=T.Normalize(0.5, 0.5, True), take_first=None):
         self.data = ImageFile(datapath)
         self.labels = LabelFile(labelpath)
         self._length = self.data.items
+        self._transform = transform
         assert self._length == self.labels.items
+        if not take_first is None:
+            self._length = take_first
+            self.data.images = self.data.images[:take_first]
+            self.labels.labels = self.labels.labels[:take_first]
     
     def __getitem__(self, idx):
-        return (self.data.images[idx], self.labels.labels[idx])
+        img = torch.tensor(self.data.images[idx].astype(np.float32))
+        label = torch.tensor(self.labels.labels[idx].astype(np.float32))
+        img = self._transform(img)
+        return (img, label)
     
     def __len__(self):
         return self._length    
