@@ -1,4 +1,5 @@
 datasets/MNIST/*
+datasets/VFW/*
 .vscode
 .venv
 *__init__.py
