@@ -3,11 +3,11 @@ import torch.nn.functional as nf
 
 from torch.utils.data import DataLoader
 from torch.nn import Module, Linear, Sequential
-from torchvision.models import ResNet50_Weights
-from torchvision.models.resnet import resnet50, ResNet
+from torchvision.models.resnet import ResNet
 
 from edi_segmentation.datasets.vfw import VfwDataset
 from edi_segmentation.utils.templates import get_fb_resnet, get_fb_transformer, get_fb_intermediates
+
 
 
 class DetrPartialPreload(Module):

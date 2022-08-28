@@ -52,7 +52,7 @@ def get_fb_resnet(root=None, path="backbone"):
     
     return restructure_resnet(resnet)
 
-def get_fb_intermediates(root=None, suffixes=["conv", "queries", "row_embed", "col_embed"], freeze_queries=True):
+def get_fb_intermediates(root=None, suffixes=["conv", "queries", "row_embed", "col_embed"], freeze_queries=False):
     conv = Conv2d(2048, 256, 1)
     if root is not None:
         conv.load_state_dict(torch.load(f"{root}{suffixes[0]}"))

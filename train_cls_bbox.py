@@ -14,7 +14,7 @@ cpu = torch.device('cpu')
 dev = torch.device('cuda') if torch.cuda.is_available() else cpu
 
 model = DetrPartialPreload()
-torch.save(model.state_dict(), "saved_models/detr_refactored_notrain")
+#torch.save(model.state_dict(), "saved_models/detr_refactored_notrain")
 model.train()
 model.to(dev)
 
@@ -27,11 +27,13 @@ scd = ExponentialLR(opt, 0.9)
 # for ind, (i, l) in enumerate(train_dl):
 #     print(f"Hit item {ind} Img batch shape: {i.shape}")
 
-EPOCHS=20
+EPOCHS=100
 EPS = 1e-6
 for e in range(EPOCHS):
     print(f"Starting epoch {e}...")
     total_loss = 0
+    categorical_loss = 0
+    bbox_loss = 0
     for img_batch, target_batch in train_dl:
         opt.zero_grad()
 
@@ -47,17 +49,21 @@ for e in range(EPOCHS):
         eps[:,:,2:] += EPS
         i_boxes_batch = i_boxes_batch + eps
         
-        loss = cls_loss(t_types_batch, i_types_batch)
+        loss = torch.tensor(0.).to(dev)
 
         for i in range(len(t_boxes_batch)):
-            loss += box_loss(t_boxes_batch[i,:t_valid_batch[i]], i_boxes_batch[i,:t_valid_batch[i]], reduction="sum")
+            closs = cls_loss(t_types_batch[i,:t_valid_batch[i]], i_types_batch[i,:t_valid_batch[i]])
+            bloss = box_loss(t_boxes_batch[i,:t_valid_batch[i]], i_boxes_batch[i,:t_valid_batch[i]], reduction="sum")
+            categorical_loss += closs.item()
+            bbox_loss += bloss.item()
+            loss += closs + bloss
         if torch.isnan(loss):
             print()
 
         loss.backward()
         opt.step()
         total_loss += loss.item()
-    print(f"Epoch: {e} loss at the end: {total_loss}")
+    print(f"Epoch: {e} loss at the end: {total_loss} categorical: {categorical_loss} bbox: {bbox_loss}")
     scd.step()
 
-torch.save(model.state_dict(), "saved_models/detr_refactored_cls_bbox")
+torch.save(model.state_dict(), "saved_models/detr_refactored_cls_bbox_unfrozen-queries-embeddings_ep100")
