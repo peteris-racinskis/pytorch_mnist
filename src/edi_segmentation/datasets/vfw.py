@@ -109,7 +109,7 @@ class VfwSubset():
 
 class VfwDataset():
 
-    def __init__(self, root="datasets/VFW"):
+    def __init__(self, root="data/VFW"):
         self._subsets = self._populate_subsets(root)
     
     def _populate_subsets(self, root):

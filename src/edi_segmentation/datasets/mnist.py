@@ -90,7 +90,7 @@ class MnistDataset():
 
 
 if __name__ == "__main__":
-    m = ImageFile("datasets/MNIST/t10k-images.idx3-ubyte")
-    l = LabelFile("datasets/MNIST/t10k-labels.idx1-ubyte")
-    train = MnistDataset("datasets/MNIST/train-images.idx3-ubyte", "datasets/MNIST/train-labels.idx1-ubyte")
-    test = MnistDataset("datasets/MNIST/t10k-images.idx3-ubyte", "datasets/MNIST/t10k-labels.idx1-ubyte")
+    m = ImageFile("data/MNIST/t10k-images.idx3-ubyte")
+    l = LabelFile("data/MNIST/t10k-labels.idx1-ubyte")
+    train = MnistDataset("data/MNIST/train-images.idx3-ubyte", "data/MNIST/train-labels.idx1-ubyte")
+    test = MnistDataset("data/MNIST/t10k-images.idx3-ubyte", "data/MNIST/t10k-labels.idx1-ubyte")

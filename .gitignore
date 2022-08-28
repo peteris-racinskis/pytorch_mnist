@@ -1,5 +1,6 @@
-datasets/MNIST/*
-datasets/VFW/*
+*data/MNIST/*
+*data/VFW/*
+*egg-info*
 .vscode
 .venv
 *__init__.py
