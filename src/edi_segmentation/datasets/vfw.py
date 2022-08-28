@@ -71,7 +71,7 @@ class VfwScene():
         
         valid = len(classes)
         zero_count = 100 - valid
-        zero_class = torch.zeros(zero_count,3)
+        zero_class = torch.tensor([1,0,0]).unsqueeze(0).repeat(zero_count, 1)
         zero_bbox = torch.zeros(zero_count,4)
         zero_mask = torch.zeros((zero_count,)+img.shape[-2:])
 
