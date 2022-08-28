@@ -4,8 +4,8 @@ from torch.utils.data.dataloader import DataLoader
 from torchvision.models.resnet import resnet18
 
 
-from datasets.mnist import MnistDataset
-from models.conv import SimpleCNN
+from edi_segmentation.datasets.mnist import MnistDataset
+from edi_segmentation.models.conv import SimpleCNN
 from train_utils import show_imgs
 
 EPOCHS=10

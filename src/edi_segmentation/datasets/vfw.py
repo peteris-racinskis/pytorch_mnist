@@ -1,4 +1,5 @@
 import torch
+from torchvision.ops import box_convert
 import torchvision.transforms as vt
 from PIL import Image
 import nestedtext as nt
@@ -33,10 +34,11 @@ class VfwScene():
         self._img_fname = list(filter(lambda s: s not in self._mask_fnames, image_names))[0]
         self._annotations = nt.load(list(filter(lambda s: ".nt" in s, fnames))[0])
 
-    def load(self, retain=True):
+    def load(self, retain=False):
 
         if retain and self._img is not None:
             return (self._img, {
+                "n_valid":    self._valid,
                 "obj_type": self._cls_tensor,
                 "bbox":     self._bbox_tensor,
                 "masks":    self._masks
@@ -67,7 +69,8 @@ class VfwScene():
             bboxes.append(bbox)
             masks.append(self._t(Image.open(mask_fname)))
         
-        zero_count = 100 - len(classes)
+        valid = len(classes)
+        zero_count = 100 - valid
         zero_class = torch.zeros(zero_count,3)
         zero_bbox = torch.zeros(zero_count,4)
         zero_mask = torch.zeros((zero_count,)+img.shape[-2:])
@@ -76,13 +79,18 @@ class VfwScene():
         bbox_tensor = torch.cat(bboxes + [zero_bbox])
         mask_tensor = torch.cat(masks + [zero_mask])
 
+        # format conversion
+        bbox_tensor = box_convert(bbox_tensor, "cxcywh", "xyxy")
+
         label = {
+            "n_valid":    valid,
             "obj_type": cls_tensor,
             "bbox":     bbox_tensor,
             "masks":    mask_tensor
         }
 
         if retain:
+            self._valid = valid
             self._bbox_tensor = bbox_tensor
             self._cls_tensor = cls_tensor
             self._img = img
@@ -98,7 +106,7 @@ class VfwSubset():
     def _populate_scenes(self, path):
         print("start populate scenes")
         scenes = []
-        for scene in listdir(path):
+        for scene in list(listdir(path)):
             scenes.append(VfwScene(f"{path}/{scene}"))
         print("end populate scenes")
         return scenes
@@ -150,4 +158,12 @@ if __name__ == "__main__":
     ds[-51]
     ds[-100]
     len(ds)
+    from torch.utils.data import DataLoader
+    dl = DataLoader(ds, 16, True)
+    for i in range(len(ds) // 16 + 1):
+        try:
+            item = next(iter(dl))
+            print(item[0].shape)
+        except Exception as e:
+            print(e)
     pass

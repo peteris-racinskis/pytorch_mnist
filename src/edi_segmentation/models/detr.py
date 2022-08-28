@@ -10,7 +10,7 @@ from edi_segmentation.datasets.vfw import VfwDataset
 from edi_segmentation.utils.templates import get_fb_resnet, get_fb_transformer, get_fb_intermediates
 
 
-class DetrWithMask(Module):
+class DetrPartialPreload(Module):
 
     def __init__(self, fb_root="saved_models/detr_", classes=3):
         super().__init__()
@@ -43,9 +43,9 @@ class DetrWithMask(Module):
         x = x.flatten(-2).permute(2,0,1)
         encoder_query = pos_emb + 0.1 * x
         decoder_query = self.query.unsqueeze(1).repeat(1,b,1)
-        tokens = self.transformer(encoder_query, decoder_query)
+        tokens = self.transformer(encoder_query, decoder_query).transpose(1,0)
 
-        logits = nf.softmax(nf.relu(self.fc_class(tokens)))
+        logits = nf.softmax(nf.relu(self.fc_class(tokens)), dim=-1)
         bboxes = nf.relu(self.fc_bbox(tokens))
 
         return {"pred_logits": logits, "pred_bboxes": bboxes}
@@ -69,7 +69,7 @@ class DetrWithMask(Module):
 if __name__ == "__main__":
     gpu = torch.device('cuda')
     cpu = torch.device('cpu')
-    model = DetrWithMask().to(gpu)
+    model = DetrPartialPreload().to(gpu)
     ds = VfwDataset()
     dl = DataLoader(ds, 10, False)
     img, label = next(iter(dl))
