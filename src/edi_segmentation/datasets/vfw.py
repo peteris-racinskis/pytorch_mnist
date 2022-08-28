@@ -67,14 +67,14 @@ class VfwScene():
             bboxes.append(bbox)
             masks.append(self._t(Image.open(mask_fname)))
         
-        zero_class = torch.zeros(1,3)
-        zero_bbox = torch.zeros(1,4)
-        zero_mask = torch.zeros((1,)+img.shape[-2:])
         zero_count = 100 - len(classes)
+        zero_class = torch.zeros(zero_count,3)
+        zero_bbox = torch.zeros(zero_count,4)
+        zero_mask = torch.zeros((zero_count,)+img.shape[-2:])
 
-        cls_tensor = torch.cat(classes + [zero_class] * zero_count)
-        bbox_tensor = torch.cat(bboxes + [zero_bbox]* zero_count)
-        mask_tensor = torch.cat(masks + [zero_mask] * zero_count)
+        cls_tensor = torch.cat(classes + [zero_class])
+        bbox_tensor = torch.cat(bboxes + [zero_bbox])
+        mask_tensor = torch.cat(masks + [zero_mask])
 
         label = {
             "obj_type": cls_tensor,
@@ -96,9 +96,11 @@ class VfwSubset():
         self.scenes = self._populate_scenes(path)
 
     def _populate_scenes(self, path):
+        print("start populate scenes")
         scenes = []
         for scene in listdir(path):
             scenes.append(VfwScene(f"{path}/{scene}"))
+        print("end populate scenes")
         return scenes
 
     def load_item(self, idx):
