@@ -1,8 +1,9 @@
 import torch
 from torch.optim import SGD
 from torch.optim.lr_scheduler import ExponentialLR
-from torchvision.ops import complete_box_iou_loss
+from torchvision.ops import complete_box_iou_loss, box_convert
 from torch.utils.data import DataLoader
+
 from edi_segmentation.models.detr import DetrPartialPreload
 from edi_segmentation.datasets.vfw import VfwDataset
 
@@ -45,9 +46,10 @@ for e in range(EPOCHS):
         i_boxes_batch = infer["pred_bboxes"]
 
         # Add epsilon to the x2, y2 coordinates of the bounding box to make the loss not shit the bed
-        eps = torch.zeros_like(i_boxes_batch).to(dev)
-        eps[:,:,2:] += EPS
-        i_boxes_batch = i_boxes_batch + eps
+        #eps = torch.zeros_like(i_boxes_batch).to(dev)
+        #eps[:,:,2:] += EPS
+        i_boxes_batch = box_convert(i_boxes_batch, "cxcywh", "xyxy")
+        #i_boxes_batch = i_boxes_batch + eps
         
         loss = torch.tensor(0.).to(dev)
 
@@ -66,4 +68,4 @@ for e in range(EPOCHS):
     print(f"Epoch: {e} loss at the end: {total_loss} categorical: {categorical_loss} bbox: {bbox_loss}")
     scd.step()
 
-torch.save(model.state_dict(), "saved_models/detr_refactored_cls_bbox_unfrozen-queries-embeddings_ep100")
+torch.save(model.state_dict(), "saved_models/detr_refactored_cls_bbox_unfrozen-queries-embeddings_boxconvert_ep100")

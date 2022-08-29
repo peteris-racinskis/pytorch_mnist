@@ -12,7 +12,7 @@ from edi_segmentation.utils.templates import get_fb_resnet, get_fb_transformer, 
 
 class DetrPartialPreload(Module):
 
-    def __init__(self, fb_root="saved_models/detr_", classes=3):
+    def __init__(self, fb_root="saved_models/detr_pretrained/detr_", classes=3):
         super().__init__()
         
         # Load weights from detr's standalone colab

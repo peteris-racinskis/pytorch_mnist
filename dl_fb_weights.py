@@ -106,6 +106,7 @@ FOR UNDERSTANDING THE SHAPE OF POS ENCODINGS
 FOR UNDERSTANDING THE SHAPE OF POS ENCODINGS
 """
 
+prefix = "saved_models/detr_pretrained/detr_"
 
 tf = detr.transformer
 bb = detr.backbone
@@ -113,9 +114,9 @@ bb_tf_bridge = detr.conv
 obj_queries = detr.query_pos
 row_embeddings = detr.row_embed
 col_embeddings = detr.col_embed
-torch.save(tf.state_dict(), "saved_models/detr_transformer")
-torch.save(bb.state_dict(), "saved_models/detr_backbone")
-torch.save(bb_tf_bridge.state_dict(), "saved_models/detr_conv")
-torch.save(obj_queries, "saved_models/detr_queries")
-torch.save(row_embeddings, "saved_models/detr_row_embed")
-torch.save(col_embeddings, "saved_models/detr_col_embed")
+torch.save(tf.state_dict(), prefix+"transformer")
+torch.save(bb.state_dict(), prefix+"backbone")
+torch.save(bb_tf_bridge.state_dict(), prefix+"conv")
+torch.save(obj_queries, prefix+"queries")
+torch.save(row_embeddings, prefix+"row_embed")
+torch.save(col_embeddings, prefix+"col_embed")
